@@ -1,0 +1,21 @@
+header, footer {
+    background-color: #333;
+    color: rgb(147, 106, 106);
+    padding: 10px;
+    text-align: center;
+   }
+   
+   nav ul {
+    list-style-type: none;
+    padding: 0;
+   }
+   
+   nav ul li {
+    display: inline;
+    margin-right: 10px;
+   }
+   
+   nav ul li a {
+    color: rgb(105, 67, 67);
+    text-decoration: none;
+   }
