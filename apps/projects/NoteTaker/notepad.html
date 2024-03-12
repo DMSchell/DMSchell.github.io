@@ -1,1 +1,42 @@
-yoooo
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="notepadStyle.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThoughtCanvas</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            <div class="left">
+                <li class="newButton" id="create-note-button">Create a note</li>
+                <li class="newButton" id="create-notebook-button">Create a notebook</li>            
+            </div>
+        </ul>
+        <ul>
+            <div id="notebooks-menu"></div>
+        </ul>
+    </nav>
+    <div id="renameNotebookModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+          <span class="close-button">&times;</span>
+          <h2>Rename Notebook</h2>
+          <input type="text" id="newNotebookName" placeholder="Enter new notebook name">
+          <button id="renameNotebookButton">Rename</button>
+        </div>
+      </div>
+    <main>
+        <main>
+            <div id="container"></div>
+        </main>
+    </main>
+    <footer>
+        <p>right click to make your first note!</p>
+        <p>&copy;?  website. No rights reserved yet I think.</p>
+    </footer>
+</body>
+</html>
+
+<script src="notepad.js"></script>
