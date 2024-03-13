@@ -13,9 +13,9 @@ var DragTarget = null;
 
 const notebooks = [];
 const notebookNames = [];
-notebooks[0] = [];
 var CurrentNotebook = 0;
 
+//#region notes
 NoteContainer.addEventListener('mousedown', function(event) {
     if (event.target.classList.contains('note-dragger')) {
         DragTarget = event.target;
@@ -44,6 +44,7 @@ NoteContainer.addEventListener('mousedown', function(event) {
         function onMouseUp() {
             document.removeEventListener('mousemove', onMouseMove);
             document.removeEventListener('mouseup', onMouseUp);
+            updateData()
         }
     }
     if (event.target.classList.contains('note-sizer')) {
@@ -75,11 +76,13 @@ NoteContainer.addEventListener('mousedown', function(event) {
         function onMouseUp() {
             document.removeEventListener('mousemove', onMouseMove);
             document.removeEventListener('mouseup', onMouseUp);
+            updateData()
         }
     }
 });
+//#endregion
 
-
+//#region right click menus
 // Create a custom context menu
 var contextMenu = document.createElement('div');
 contextMenu.id = 'custom-context-menu';
@@ -91,7 +94,7 @@ contextMenu.style.color = '#ccc';
 contextMenu.style.border = '1px solid #ccc';
 contextMenu.style.paddingRight = '25px';
 contextMenu.style.fontSize = '12';
-contextMenu.innerHTML = '<ul><li class="context-menu-item" id="option1">Create a new note</li><li class="context-menu-item" id="option2">Create a new notebook</li> <li class="context-menu-item" id="option3">Rename notebook</li> <li class="context-menu-item" id="option4">Select a notebook</li> </ul>';
+contextMenu.innerHTML = '<ul><li class="context-menu-item" id="option1">Create a new note</li><li class="context-menu-item" id="option2">Create a new notebook</li> <li class="context-menu-item" id="option3">Rename notebook</li> </ul>';
 document.body.appendChild(contextMenu);
 
 
@@ -115,39 +118,15 @@ document.getElementById('option2').addEventListener('click', function() {
 document.getElementById('option3').addEventListener('click', function() {
     contextMenu.style.display = 'none';
 });
-document.getElementById('option4').addEventListener('click', function() {
-    contextMenu.style.display = 'none';
-    notebookSelectionMenu.style.display = 'block'; // Show the notebook selection menu
-});
 
 document.addEventListener('click', function(event) {
     if (event.target !== contextMenu && event.target.id !== 'option1') {
         contextMenu.style.display = 'none';
     }
 });
+//#endregion
 
-
-
-var notebookSelectionMenu = document.createElement('div');
-notebookSelectionMenu.id = 'notebook-selection-menu';
-notebookSelectionMenu.style.display = 'none';
-notebookSelectionMenu.style.position = 'absolute';
-notebookSelectionMenu.style.zIndex = '1000';
-notebookSelectionMenu.style.backgroundColor = '#343a40';
-notebookSelectionMenu.style.color = '#ccc';
-notebookSelectionMenu.style.border = '1px solid #ccc';
-notebookSelectionMenu.style.paddingRight = '25px';
-notebookSelectionMenu.style.fontSize = '12';
-document.body.appendChild(notebookSelectionMenu);
-
-document.addEventListener('click', function(event) {
-    if (event.target !== notebookSelectionMenu && event.target.id !== 'option4') {
-        notebookSelectionMenu.style.display = 'none';
-    }
-});
-
-
-
+//#region "make new" functions
 function MakeNewNote() {
     var newNoteDragger = document.createElement('div');
     newNoteDragger.className = 'note-dragger'
@@ -165,6 +144,7 @@ function MakeNewNote() {
     newNote.appendChild(noteSizer);
 
     notebooks[CurrentNotebook][notebooks[CurrentNotebook].length] = newNoteDragger;
+    updateData();
     
 
     // Set the contenteditable attribute of the parent element to false
@@ -207,48 +187,41 @@ function MakeNewNotebook(){
     // Clear the container
     var container = document.getElementById('container');
     container.innerHTML = '';
+    MakeNewNote();
     
     // Set the current notebook
     Notebooks();
+    updateData();
 }
 
-function Notebooks(){
-    var notebooksMenu = document.getElementById('notebook-selection-menu');
+//#endregion
 
-    // Clear the container before adding new buttons
+//#region notebooks
+function Notebooks(){
+    var notebooksMenu = document.getElementById('notebooks-menu');
     notebooksMenu.innerHTML = '';
 
-    // Create a button for each notebook
     notebooks.forEach(function(notebook, index) {
         createNotebookButton(notebookNames[index], notebook, index);
     });
 }
 
 function updateNotebookButtons(index) {
-    // Select all notebook buttons
     var notebookButtons = document.getElementsByClassName('notebookButton');
-
     // Create a copy of the collection to avoid live collection issues
     var notebookButtonsCopy = Array.prototype.slice.call(notebookButtons);
-
-    // Loop through each notebook button and update its class
     notebookButtonsCopy.forEach(function(button, i) {
         if (i === index) {
-            // If this is the notebook with the correct index, set its class to 'notebookButtonSelected'
             button.className = 'notebookButtonSelected';
         } else {
-            // Otherwise, set its class to 'notebookButtonUnselected'
             button.className = 'notebookButtonUnselected';
         }
     });
 }
+//#endregion
 
-Notebooks();
-updateNotebookButtons(0);
 
-document.getElementById('create-note-button').addEventListener('click', MakeNewNote);
-document.getElementById('create-notebook-button').addEventListener('click', MakeNewNotebook);
-
+//#region renaming notebooks
 var renameNotebookModal = document.getElementById('renameNotebookModal');
 var renameNotebookButton = document.getElementById('option3');
 var closeModalSpan = document.getElementsByClassName('close-button')[0];
@@ -283,11 +256,13 @@ renameNotebookSubmitButton.onclick = function() {
     newNotebookNameInput.value = '';
   }
 }
+//#endregion
 
 //-----------------------------------------------------------------------------------------------
 
+//#region notebook buttons
 function createNotebookButton(name, notebook, index) {
-    var notebooksMenu = document.getElementById('notebook-selection-menu');
+    var notebooksMenu = document.getElementById('notebooks-menu');
     var button = document.createElement('li');
     button.className = 'notebookButton';
     button.textContent = name;
@@ -315,10 +290,73 @@ function createNotebookButton(name, notebook, index) {
 function renameNotebook(index, newName) {
     if (index >=  0 && index < notebookNames.length) {
         notebookNames[index] = newName;
-        var notebooksMenu = document.getElementById('notebook-selection-menu');
+        var notebooksMenu = document.getElementById('notebooks-menu');
         var buttons = notebooksMenu.getElementsByClassName('notebookButton');
     }
 }
+//#endregion
 
-MakeNewNotebook();
-notebooks();
+//#region Saving data
+
+function updateData() {
+    let replaceNotebooks = [];
+    let replaceNotebookNotes = [];
+    let replaceNotebookLengths = [];
+    if (notebooks.length > 0){
+        for(let i = 0; i < notebooks.length; i++){
+            replaceNotebooks[i] = notebooks[i];
+            replaceNotebookLengths[i] = notebooks[i].length;
+            for(let l=0; l < notebooks[i].length; l++){
+                replaceNotebookNotes.push(notebooks[i][l].textContent);
+            }
+        }
+    }
+    localStorage.setItem("NotebookNames", JSON.stringify(notebookNames));
+    localStorage.setItem("Notebooks", JSON.stringify(replaceNotebooks));
+    localStorage.setItem("NotebookNotes", JSON.stringify(replaceNotebookNotes));
+    localStorage.setItem("NotebookLengths", JSON.stringify(replaceNotebookLengths));
+}
+function loadData(){
+    let replaceNotebookNames = JSON.parse(localStorage.getItem("NotebookNames"));
+    let replaceNotebooks = JSON.parse(localStorage.getItem("Notebooks"));
+    let replaceNotebookNotes = JSON.parse(localStorage.getItem("NotebookNotes"));
+    let replaceNotebookLengths = JSON.parse(localStorage.getItem("NotebookLengths"))
+    if (replaceNotebookNames != null && replaceNotebooks != null) {
+        let noteNumber = 0;
+        for(let i = 0; i < replaceNotebookNames.length; i++){
+            notebookNames[i] = replaceNotebookNames[i];
+            notebooks[i] = replaceNotebooks[i];
+            for(let l = 0; l < replaceNotebookLengths[l]; l++){
+                var newNoteDragger = document.createElement('div');
+                newNoteDragger.className = 'note-dragger';
+                newNoteDragger.textContent = ' ';
+                document.getElementById('container').appendChild(newNoteDragger);
+                var newNote = document.createElement('div');
+                newNote.className = 'new-note';
+                newNote.textContent = replaceNotebookNotes[noteNumber];
+                newNote.setAttribute('contenteditable', 'true');
+                newNoteDragger.appendChild(newNote);
+                var noteSizer = document.createElement('div');
+                noteSizer.className = 'note-sizer';
+                noteSizer.textContent = ' ';
+                noteSizer.setAttribute('contenteditable', 'false');
+                newNoteDragger.appendChild(noteSizer);
+                notebooks[i][l] = newNoteDragger;
+                noteNumber++;
+            }
+        }
+        Notebooks();
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+//#endregion
+//localStorage.clear();
+makeNew = loadData();
+if (!makeNew) {
+    MakeNewNotebook();
+}
+Notebooks();
