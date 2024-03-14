@@ -299,53 +299,65 @@ function renameNotebook(index, newName) {
 //#region Saving data
 
 function updateData() {
-    let replaceNotebooks = [];
-    let replaceNotebookNotes = [];
-    let replaceNotebookLengths = [];
+    let replaceNotes = [];
+    let replaceNoteNotebooks = [];
+    let replaceNotesLefts = [];
+    let replaceNotesTops = [];
     if (notebooks.length > 0){
         for(let i = 0; i < notebooks.length; i++){
-            replaceNotebooks[i] = notebooks[i];
-            replaceNotebookLengths[i] = notebooks[i].length;
             for(let l=0; l < notebooks[i].length; l++){
-                replaceNotebookNotes.push(notebooks[i][l].textContent);
+                replaceNotes[replaceNotes.length] = notebooks[i][l].textContent;
+                replaceNoteNotebooks[replaceNoteNotebooks.length] = i;
+                replaceNotesLefts[replaceNotesLefts.length] = notebooks[i][l].style.left;
+                replaceNotesTops[replaceNotesTops.length] = notebooks[i][l].style.top;
             }
         }
     }
     localStorage.setItem("NotebookNames", JSON.stringify(notebookNames));
-    localStorage.setItem("Notebooks", JSON.stringify(replaceNotebooks));
-    localStorage.setItem("NotebookNotes", JSON.stringify(replaceNotebookNotes));
-    localStorage.setItem("NotebookLengths", JSON.stringify(replaceNotebookLengths));
+    localStorage.setItem("Notes", JSON.stringify(replaceNotes));
+    localStorage.setItem("NoteNotebooks", JSON.stringify(replaceNoteNotebooks));
+    localStorage.setItem("NoteLefts", JSON.stringify(replaceNotesLefts));
+    localStorage.setItem("NoteTops", JSON.stringify(replaceNotesTops))
 }
 function loadData(){
     let replaceNotebookNames = JSON.parse(localStorage.getItem("NotebookNames"));
-    let replaceNotebooks = JSON.parse(localStorage.getItem("Notebooks"));
-    let replaceNotebookNotes = JSON.parse(localStorage.getItem("NotebookNotes"));
-    let replaceNotebookLengths = JSON.parse(localStorage.getItem("NotebookLengths"))
-    if (replaceNotebookNames != null && replaceNotebooks != null) {
+    let replaceNotes = JSON.parse(localStorage.getItem("Notes"));
+    let replaceNoteNotebooks = JSON.parse(localStorage.getItem("NoteNotebooks"));
+    let replaceNoteLefts = JSON.parse(localStorage.getItem("NoteLefts"));
+    let replaceNoteTops = JSON.parse(localStorage.getItem("NoteTops"));
+    if (replaceNotebookNames != null) {
         let noteNumber = 0;
         for(let i = 0; i < replaceNotebookNames.length; i++){
             notebookNames[i] = replaceNotebookNames[i];
-            notebooks[i] = replaceNotebooks[i];
-            for(let l = 0; l < replaceNotebookLengths[l]; l++){
-                var newNoteDragger = document.createElement('div');
-                newNoteDragger.className = 'note-dragger';
-                newNoteDragger.textContent = ' ';
-                document.getElementById('container').appendChild(newNoteDragger);
-                var newNote = document.createElement('div');
-                newNote.className = 'new-note';
-                newNote.textContent = replaceNotebookNotes[noteNumber];
-                newNote.setAttribute('contenteditable', 'true');
-                newNoteDragger.appendChild(newNote);
-                var noteSizer = document.createElement('div');
-                noteSizer.className = 'note-sizer';
-                noteSizer.textContent = ' ';
-                noteSizer.setAttribute('contenteditable', 'false');
-                newNoteDragger.appendChild(noteSizer);
-                notebooks[i][l] = newNoteDragger;
-                noteNumber++;
-            }
+            notebooks[i] = [];
+        }
+        for(let l = 0; l < replaceNotes.length; l++){
+            var newNoteDragger = document.createElement('div');
+            newNoteDragger.className = 'note-dragger';
+            newNoteDragger.textContent = ' ';
+            newNoteDragger.style.left = replaceNoteLefts[noteNumber];
+            newNoteDragger.style.top = replaceNoteTops[noteNumber];
+            document.getElementById('container').appendChild(newNoteDragger);
+            var newNote = document.createElement('div');
+            newNote.className = 'new-note';
+            newNote.textContent = replaceNotes[noteNumber];
+            newNote.setAttribute('contenteditable', 'true');
+            newNoteDragger.appendChild(newNote);
+            var noteSizer = document.createElement('div');
+            noteSizer.className = 'note-sizer';
+            noteSizer.textContent = ' ';
+            noteSizer.setAttribute('contenteditable', 'false');
+            newNote.appendChild(noteSizer);
+            notebooks[replaceNoteNotebooks[l]][l] = newNoteDragger;
+            noteNumber++;
         }
         Notebooks();
+        updateNotebookButtons(0);
+        var container = document.getElementById('container');
+        container.innerHTML = '';
+        notebooks[0].forEach(function(note) {
+            container.appendChild(note);
+        });
         return true;
     }
     else {
