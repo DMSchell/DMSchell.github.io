@@ -303,6 +303,8 @@ function updateData() {
     let replaceNoteNotebooks = [];
     let replaceNotesLefts = [];
     let replaceNotesTops = [];
+    let replaceNotesWidths = [];
+    let replaceNotesHeights = [];
     if (notebooks.length > 0){
         for(let i = 0; i < notebooks.length; i++){
             for(let l=0; l < notebooks[i].length; l++){
@@ -310,6 +312,8 @@ function updateData() {
                 replaceNoteNotebooks[replaceNoteNotebooks.length] = i;
                 replaceNotesLefts[replaceNotesLefts.length] = notebooks[i][l].style.left;
                 replaceNotesTops[replaceNotesTops.length] = notebooks[i][l].style.top;
+                replaceNotesWidths[replaceNotesWidths.length] = notebooks[i][l].style.width;
+                replaceNotesHeights[replaceNotesHeights.length] = notebooks[i][l].style.height;
             }
         }
     }
@@ -317,7 +321,9 @@ function updateData() {
     localStorage.setItem("Notes", JSON.stringify(replaceNotes));
     localStorage.setItem("NoteNotebooks", JSON.stringify(replaceNoteNotebooks));
     localStorage.setItem("NoteLefts", JSON.stringify(replaceNotesLefts));
-    localStorage.setItem("NoteTops", JSON.stringify(replaceNotesTops))
+    localStorage.setItem("NoteTops", JSON.stringify(replaceNotesTops));
+    localStorage.setItem("NoteWidths", JSON.stringify(replaceNotesWidths));
+    localStorage.setItem("NoteHeights", JSON.stringify(replaceNotesHeights));
 }
 function loadData(){
     let replaceNotebookNames = JSON.parse(localStorage.getItem("NotebookNames"));
@@ -325,6 +331,8 @@ function loadData(){
     let replaceNoteNotebooks = JSON.parse(localStorage.getItem("NoteNotebooks"));
     let replaceNoteLefts = JSON.parse(localStorage.getItem("NoteLefts"));
     let replaceNoteTops = JSON.parse(localStorage.getItem("NoteTops"));
+    let replaceNoteWidths = JSON.parse(localStorage.getItem("NoteWidths"));
+    let replaceNoteHeights = JSON.parse(localStorage.getItem("NoteHeights"));
     if (replaceNotebookNames != null) {
         let noteNumber = 0;
         for(let i = 0; i < replaceNotebookNames.length; i++){
@@ -337,11 +345,15 @@ function loadData(){
             newNoteDragger.textContent = ' ';
             newNoteDragger.style.left = replaceNoteLefts[noteNumber];
             newNoteDragger.style.top = replaceNoteTops[noteNumber];
+            if (replaceNoteWidths[noteNumber]) { newNoteDragger.style.width = replaceNoteWidths[noteNumber]; }
+            if (replaceNoteHeights[noteNumber]) { newNoteDragger.style.height = replaceNoteHeights[noteNumber]; }
             document.getElementById('container').appendChild(newNoteDragger);
             var newNote = document.createElement('div');
             newNote.className = 'new-note';
             newNote.textContent = replaceNotes[noteNumber];
             newNote.setAttribute('contenteditable', 'true');
+            if (replaceNoteWidths[noteNumber]) { newNote.style.width = replaceNoteWidths[noteNumber]; }
+            if (replaceNoteHeights[noteNumber]) { newNote.style.height = replaceNoteHeights[noteNumber]; }
             newNoteDragger.appendChild(newNote);
             var noteSizer = document.createElement('div');
             noteSizer.className = 'note-sizer';
@@ -364,6 +376,16 @@ function loadData(){
         return false;
     }
 }
+
+document.querySelectorAll('input[type="div"], input[type="radio"]').forEach(function(element) {
+    element.addEventListener('change', function(event) {
+        if (this.checked) {
+            console.log('Element selected:', this);
+        } else {
+            console.log('Element deselected:', this);
+        }
+    });
+});
 
 //#endregion
 //localStorage.clear();
