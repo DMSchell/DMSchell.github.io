@@ -79,6 +79,18 @@ NoteContainer.addEventListener('mousedown', function(event) {
             updateData()
         }
     }
+    if (event.target.classList.contains('note-deleter')) {
+        for(let i = 0; i < notebooks.length; i++){
+            for(let l=0; l < notebooks[i].length; l++){
+                if (notebooks[i][l].style.left == event.target.parentElement.style.left){
+                    notebooks[i].splice(l, 1);
+                }
+            }
+        }
+        event.stopPropagation();
+        event.target.parentElement.remove();
+        updateData();
+    }
 });
 //#endregion
 
@@ -142,6 +154,11 @@ function MakeNewNote() {
     noteSizer.textContent = ' ';
     noteSizer.setAttribute('contenteditable', 'false');
     newNote.appendChild(noteSizer);
+    var noteDeleter = document.createElement('div');
+    noteDeleter.className = 'note-deleter';
+    noteDeleter.textContent = ' ';
+    noteDeleter.setAttribute('contenteditable', 'false');
+    newNoteDragger.appendChild(noteDeleter);
 
     notebooks[CurrentNotebook][notebooks[CurrentNotebook].length] = newNoteDragger;
     updateData();
@@ -297,7 +314,6 @@ function renameNotebook(index, newName) {
 //#endregion
 
 //#region Saving data
-
 function updateData() {
     let replaceNotes = [];
     let replaceNoteNotebooks = [];
@@ -308,7 +324,7 @@ function updateData() {
     if (notebooks.length > 0){
         for(let i = 0; i < notebooks.length; i++){
             for(let l=0; l < notebooks[i].length; l++){
-                replaceNotes[replaceNotes.length] = notebooks[i][l].textContent;
+                if (notebooks[i][l].textContent){ replaceNotes[replaceNotes.length] = notebooks[i][l].textContent; }
                 replaceNoteNotebooks[replaceNoteNotebooks.length] = i;
                 replaceNotesLefts[replaceNotesLefts.length] = notebooks[i][l].style.left;
                 replaceNotesTops[replaceNotesTops.length] = notebooks[i][l].style.top;
@@ -360,6 +376,11 @@ function loadData(){
             noteSizer.textContent = ' ';
             noteSizer.setAttribute('contenteditable', 'false');
             newNote.appendChild(noteSizer);
+            var noteDeleter = document.createElement('div');
+            noteDeleter.className = 'note-deleter';
+            noteDeleter.textContent = ' ';
+            noteDeleter.setAttribute('contenteditable', 'false');
+            newNoteDragger.appendChild(noteDeleter);
             notebooks[replaceNoteNotebooks[l]][l] = newNoteDragger;
             noteNumber++;
         }
