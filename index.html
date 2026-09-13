@@ -1,36 +1,502 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>David website</title>
-    <link rel="stylesheet" href="style/style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>David — Photonics & Computing</title>
+<style>
+  :root{
+    --bg:#0F141C;
+    --bg-2:#151B25;
+    --line:#26303D;
+    --text:#E8ECF2;
+    --muted:#8E99A9;
+    --amber:#F0B44A;
+    --amber-dim:rgba(240,180,74,.18);
+    --maxw:1120px;
+    --font:"Avenir Next","Segoe UI","Helvetica Neue",Inter,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--font);
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:2px}
+
+  /* ---------- background simulation ---------- */
+  body{background-image:radial-gradient(1200px 700px at 70% 30%,#182130 0%,var(--bg) 60%);background-attachment:fixed}
+  #sim{position:fixed;inset:0;z-index:0}
+  #sim canvas{
+    display:block;width:100%;height:100%;
+    -webkit-mask-image:radial-gradient(ellipse 65% 55% at 62% 45%,#000 25%,rgba(0,0,0,.5) 55%,transparent 80%);
+    mask-image:radial-gradient(ellipse 65% 55% at 62% 45%,#000 25%,rgba(0,0,0,.5) 55%,transparent 80%);
+  }
+  .veil{ /* keeps text legible below the hero */
+    position:fixed;inset:0;z-index:1;pointer-events:none;
+    background:linear-gradient(to bottom,rgba(15,20,28,0) 0,rgba(15,20,28,0) 55vh,rgba(15,20,28,.92) 110vh,var(--bg) 140vh);
+  }
+
+  /* ---------- layout ---------- */
+  .page{position:relative;z-index:2}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 32px}
+
+  nav{
+    position:sticky;top:0;z-index:5;
+    backdrop-filter:blur(10px);
+    background:linear-gradient(rgba(15,20,28,.85),rgba(15,20,28,.55));
+    border-bottom:1px solid rgba(38,48,61,.6);
+  }
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+  nav .brand{font-weight:600;letter-spacing:-.01em}
+  nav ul{display:flex;gap:28px;list-style:none;font-size:15px;color:var(--muted)}
+  nav ul a:hover{color:var(--text)}
+  nav .cta{color:var(--amber)}
+
+  /* ---------- hero ---------- */
+  .hero{min-height:calc(100vh - 60px);display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:64px}
+  .hero .kicker{color:var(--muted);font-size:16px;margin-bottom:18px}
+  .hero h1{
+    font-size:clamp(40px,6.4vw,84px);
+    line-height:1.02;letter-spacing:-.025em;font-weight:600;
+    max-width:14ch;
+  }
+  .hero p.lede{max-width:52ch;font-size:19px;color:var(--muted);margin-top:26px}
+  .hero .foot{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-top:64px;font-size:13px;color:var(--muted)}
+  .hero .foot .caption{max-width:46ch}
+  .hero .foot button{
+    font:inherit;font-size:13px;color:var(--muted);background:none;border:1px solid var(--line);
+    padding:7px 12px;border-radius:999px;cursor:pointer;
+  }
+  .hero .foot button:hover{color:var(--text);border-color:var(--muted)}
+
+  /* ---------- sections ---------- */
+  section{padding:96px 0;border-top:1px solid var(--line)}
+  section h2{font-size:14px;font-weight:600;color:var(--muted);letter-spacing:.02em;margin-bottom:40px}
+
+  /* research: featured, two columns, figure on right */
+  .paper{display:grid;grid-template-columns:1.3fr 1fr;gap:56px;align-items:start}
+  .paper h3{font-size:clamp(26px,3vw,36px);line-height:1.15;letter-spacing:-.02em;font-weight:600;max-width:24ch}
+  .paper .role{color:var(--amber);font-size:15px;margin:14px 0 24px}
+  .paper p{color:var(--text);max-width:60ch;font-size:17px}
+  .paper p+p{margin-top:16px;color:var(--muted)}
+  .paper dl{margin-top:32px;border-top:1px solid var(--line)}
+  .paper dl div{display:grid;grid-template-columns:200px 1fr;gap:16px;padding:14px 0;border-bottom:1px solid var(--line);font-size:15px}
+  .paper dt{color:var(--muted)}
+  .paper .links{display:flex;gap:22px;margin-top:28px;font-size:15px}
+  .paper .links a{border-bottom:1px solid var(--amber);padding-bottom:2px}
+  .paper .links a.soon{color:var(--muted);border-color:var(--line);cursor:default}
+  figure{background:var(--bg-2);border:1px solid var(--line);border-radius:6px;padding:28px 24px 18px;position:sticky;top:92px}
+  figure svg{width:100%;height:auto;display:block}
+  figcaption{font-size:13px;color:var(--muted);margin-top:14px;line-height:1.5}
+
+  /* projects: two entries as a table-like row, no card kit */
+  .projects{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--line)}
+  .project{padding:36px 0;border-bottom:1px solid var(--line)}
+  .project:first-child{padding-right:48px;border-right:1px solid var(--line)}
+  .project:last-child{padding-left:48px}
+  .project .meta{color:var(--amber);font-size:14px;margin-bottom:12px}
+  .project h3{font-size:24px;letter-spacing:-.015em;font-weight:600;line-height:1.2}
+  .project p{color:var(--muted);margin-top:14px;font-size:16px;max-width:44ch}
+  .project ul{list-style:none;margin-top:22px;display:flex;flex-wrap:wrap;gap:8px}
+  .project li{font-size:13px;color:var(--text);background:var(--amber-dim);border:1px solid rgba(240,180,74,.25);padding:4px 10px;border-radius:999px}
+  .project .links{margin-top:22px;font-size:15px;display:flex;gap:20px}
+  .project .links a{border-bottom:1px solid var(--amber);padding-bottom:2px}
+
+  /* about */
+  .about{display:grid;grid-template-columns:1.3fr 1fr;gap:56px}
+  .about p{font-size:18px;max-width:58ch}
+  .about p+p{margin-top:16px;color:var(--muted)}
+  .contact{list-style:none;font-size:16px}
+  .contact li{padding:12px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between}
+  .contact li span{color:var(--muted)}
+  footer{padding:36px 0 48px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;border-top:1px solid var(--line)}
+
+  @media (max-width:860px){
+    .wrap{padding:0 20px}
+    nav ul{gap:18px;font-size:14px}
+    nav ul li:nth-child(-n+2){display:none}
+    .paper,.about{grid-template-columns:1fr;gap:36px}
+    figure{position:static}
+    .paper dl div{grid-template-columns:1fr;gap:4px}
+    .projects{grid-template-columns:1fr}
+    .project:first-child{padding-right:0;border-right:0}
+    .project:last-child{padding-left:0}
+    .hero .foot{flex-direction:column;align-items:flex-start}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+  }
+</style>
 </head>
 <body>
-    <div id="content">
-        <header>
-            <nav>
-               <ul>
-                 <li><a href="index.html" class="White-text">Home</a></li>
-                 <li><a href="pages/projects.html" class="White-text">Projects</a></li>
-                 <li><a href="pages/research.html" class="White-text">Research</a></li>
-                 <li><a href="pages/competition.html" class="White-text">Competition Work</a></li>
-               </ul>
-            </nav>
-        </header>
-        <div id="bio">
-    
-        </div>
-        <nav>
-            <ul>
-                <li><a href="pages/projects.html">Projects</a></li>
-                <li><a href="pages/research.html">Research</a></li>
-                <li><a href="pages/competition.html">Competition Work</a></li>
-            </ul>
-        </nav>
 
-        <footer>
-            <p>No copyright (yet)</p>
-        </footer>
+<div id="sim" aria-hidden="true"></div>
+<div class="veil" aria-hidden="true"></div>
+
+<div class="page">
+  <nav>
+    <div class="wrap">
+      <a class="brand" href="#top">David Schell</a>
+      <ul>
+        <li><a href="#research">Research</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a class="cta" href="mailto:dmschell18@gmail.com">Get in touch</a></li>
+      </ul>
     </div>
+  </nav>
+
+  <header class="hero wrap" id="top">
+    <div class="kicker">Mathematical Sciences, New Jersey Institute of Technology</div>
+    <h1>David Schell: Building with light</h1>
+    <p class="lede">Undergraduate research on gate-tunable absorption in graphene microcavities, and computer-vision projects that turn a webcam into an input device.</p>
+    <div class="foot">
+      <div class="caption">Behind this page: a mesh of Mach–Zehnder interferometers, the building block of a programmable photonic processor. Each photon enters the mesh, is split across two paths at each coupler, picks up a phase shift from a heater, and interferes back together, with the phase shift tilting the balance of which port it emerges from.</div>
+      <button id="toggle" type="button" aria-pressed="false">Pause simulation</button>
+    </div>
+  </header>
+
+  <section id="research">
+    <div class="wrap">
+      <h2>Research</h2>
+      <div class="paper">
+        <div>
+          <h3>Gate-tunable critical coupling and absorption switching in an all-dielectric graphene–Bragg microcavity</h3>
+          <div class="role">Sole author · manuscript in preparation for ACS Photonics</div>
+          <p>A single sheet of graphene is placed inside an asymmetric TiO₂/SiO₂ Bragg cavity. Applying a gate voltage shifts the graphene's Fermi level, which changes how strongly it absorbs light. At one specific voltage the cavity reaches critical coupling and absorbs almost everything that hits it; move the voltage and the device switches back to mostly transparent.</p>
+          <p>I derived the device response with a two-port coupled-mode theory, modeled the gate electrostatics explicitly rather than hand-picking a Fermi level, computed graphene's conductivity from the full Kubo formalism, and verified everything against a transfer-matrix simulation I wrote from scratch in JavaScript.</p>
+          <dl>
+            <div><dt>Method</dt><dd>Two-port coupled-mode theory, Kubo conductivity, transfer-matrix simulation of the full 30-layer stack</dd></div>
+            <div><dt>Key result</dt><dd>Peak absorption ≈ 0.999 at the critical-coupling voltage, robust across a sweep of scattering rates</dd></div>
+            <div><dt>Why it's different</dt><dd>Fully dielectric mirrors (no metal), realistic voltage-to-Fermi-level electrostatics, and a two-port treatment where prior work used single-port models</dd></div>
+            <div><dt>Code</dt><dd>Physics engine and browser UI, Node.js validation suite; archived on GitHub with a Zenodo DOI</dd></div>
+          </dl>
+          <div class="links">
+            <a class="soon" href="#research" aria-disabled="true">Preprint (coming soon)</a>
+            <a href="https://github.com/your-handle/graphene-bragg-cavity">Simulation code</a>
+          </div>
+        </div>
+
+        <figure>
+          <svg viewBox="0 0 360 250" role="img" aria-label="Cross-section of the layered device: alternating dielectric layers with a graphene sheet and gate in the middle.">
+            <defs>
+              <linearGradient id="g" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stop-color="#F0B44A" stop-opacity=".9"/>
+                <stop offset="1" stop-color="#F0B44A" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <!-- incident light -->
+            <line x1="180" y1="6" x2="180" y2="34" stroke="#F0B44A" stroke-width="1.5"/>
+            <polygon points="176,30 184,30 180,38" fill="#F0B44A"/>
+            <text x="192" y="22" fill="#8E99A9" font-size="10" font-family="inherit">incident light</text>
+            <!-- front mirror: 8 pairs -->
+            <g id="front">
+              <rect x="40" y="44" width="280" height="8" fill="#3A4757"/><rect x="40" y="52" width="280" height="6" fill="#26303D"/>
+              <rect x="40" y="58" width="280" height="8" fill="#3A4757"/><rect x="40" y="66" width="280" height="6" fill="#26303D"/>
+              <rect x="40" y="72" width="280" height="8" fill="#3A4757"/><rect x="40" y="80" width="280" height="6" fill="#26303D"/>
+              <rect x="40" y="86" width="280" height="8" fill="#3A4757"/><rect x="40" y="94" width="280" height="6" fill="#26303D"/>
+            </g>
+            <!-- cavity spacer with graphene + gate -->
+            <rect x="40" y="100" width="280" height="44" fill="#1B2330"/>
+            <line x1="40" y1="122" x2="320" y2="122" stroke="#F0B44A" stroke-width="2"/>
+            <text x="46" y="117" fill="#F0B44A" font-size="10" font-family="inherit">graphene</text>
+            <rect x="40" y="132" width="280" height="4" fill="#5B6B80"/>
+            <text x="46" y="143" fill="#8E99A9" font-size="9" font-family="inherit">gate oxide / electrode</text>
+            <!-- back mirror: 9 pairs -->
+            <g>
+              <rect x="40" y="146" width="280" height="8" fill="#3A4757"/><rect x="40" y="154" width="280" height="6" fill="#26303D"/>
+              <rect x="40" y="160" width="280" height="8" fill="#3A4757"/><rect x="40" y="168" width="280" height="6" fill="#26303D"/>
+              <rect x="40" y="174" width="280" height="8" fill="#3A4757"/><rect x="40" y="182" width="280" height="6" fill="#26303D"/>
+              <rect x="40" y="188" width="280" height="8" fill="#3A4757"/><rect x="40" y="196" width="280" height="6" fill="#26303D"/>
+              <rect x="40" y="202" width="280" height="8" fill="#3A4757"/><rect x="40" y="210" width="280" height="6" fill="#26303D"/>
+            </g>
+            <!-- field build-up glow -->
+            <rect x="40" y="100" width="280" height="44" fill="url(#g)" opacity=".35"/>
+            <!-- labels -->
+            <text x="326" y="74" fill="#8E99A9" font-size="9" font-family="inherit">TiO₂ / SiO₂</text>
+            <text x="326" y="180" fill="#8E99A9" font-size="9" font-family="inherit">TiO₂ / SiO₂</text>
+            <!-- V_g -->
+            <text x="12" y="126" fill="#E8ECF2" font-size="11" font-family="inherit">V<tspan font-size="8" dy="3">g</tspan></text>
+            <line x1="30" y1="122" x2="40" y2="122" stroke="#E8ECF2" stroke-width="1"/>
+            <text x="40" y="236" fill="#8E99A9" font-size="10" font-family="inherit">Asymmetric mirrors: fewer pairs on top, more on the bottom, so light gets in but barely escapes.</text>
+          </svg>
+          <figcaption>Device cross-section (not to scale). The gate voltage V<sub>g</sub> sets the graphene Fermi level, which tunes the cavity from near-transparent to near-total absorption.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="projects">
+    <div class="wrap">
+      <h2>Hackathon projects</h2>
+      <div class="projects">
+        <article class="project">
+          <div class="meta">[Hackathon name] · [Result, e.g. 1st place]</div>
+          <h3>IControl: point and click with your eyes</h3>
+          <p>A webcam tracks where you're looking and moves the cursor there; a deliberate blink or dwell clicks. Built as a hands-free way to use a computer, with a calibration step that maps eye landmarks to screen coordinates in about ten seconds.</p>
+          <ul><li>Python</li><li>OpenCV</li><li>MediaPipe face mesh</li><li>[Add your stack]</li></ul>
+          <div class="links"><a href="https://github.com/your-handle/gaze-control">Code</a><a href="#">Demo video</a></div>
+        </article>
+        <article class="project">
+          <div class="meta">[Hackathon name] · [Result]</div>
+          <h3>Signify: Sign language interpreter from live video</h3>
+          <p>Reads sign language gestures from a camera feed and translates them into text in real time. Hand landmarks are extracted frame by frame, then a sequence model classifies the motion rather than a single pose, so signs that involve movement are recognised, not just static letters.</p>
+          <ul><li>Python</li><li>MediaPipe hands</li><li>[Model / framework]</li><li>[Add your stack]</li></ul>
+          <div class="links"><a href="https://github.com/your-handle/sign-language-interpreter">Code</a><a href="#">Demo video</a></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="wrap about">
+      <div>
+        <h2>About</h2>
+        <p>I'm a Mathematical Sciences student in the honors program at NJIT, on a full academic scholarship. I'm working toward graduate research in quantum photonics, and most of what I build is in service of that: simulators for optical devices, and vision systems that started as hackathon weekends.</p>
+        <p>The software isn't a side track from the physics. The graphene paper exists because I could write the transfer-matrix engine myself and check every equation numerically.</p>
+      </div>
+      <div>
+        <h2>Contact</h2>
+        <ul class="contact">
+          <li><span>Email</span><a href="mailto:you@example.com">you@example.com</a></li>
+          <li><span>GitHub</span><a href="https://github.com/your-handle">github.com/your-handle</a></li>
+          <li><span>LinkedIn</span><a href="https://linkedin.com/in/your-handle">linkedin.com/in/your-handle</a></li>
+          <li><span>CV</span><a href="#">Download PDF</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer class="wrap">
+    <span>© 2026 David [Last name]</span>
+    <span>Newark, New Jersey</span>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  // ---------- Photonic MZI mesh, modeled on a real silicon-photonic chip ----------
+  // Each unit: directional coupler (S-bend in, parallel coupling section, S-bend out),
+  // two arms with a thermo-optic phase shifter on the upper arm, second directional coupler.
+  // Light is treated as single photons: inside a unit the photon is in a superposition of both
+  // arms (shown as two dots whose brightness is the probability), and at the output coupler it
+  // exits one port with probability set by the phase shifter:  P_cross = cos^2(phi/2).
+  const host = document.getElementById('sim');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!window.THREE) return;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(42, innerWidth/innerHeight, 0.1, 100);
+  camera.position.set(0, 0, 15);
+  const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setSize(innerWidth, innerHeight);
+  host.appendChild(renderer.domElement);
+
+  // ---- geometry of one MZI unit (scene units) ----
+  const ROWS = 10, SPACING = 1.25, LEN = 27;
+  const GAP = 0.16;                      // waveguide separation inside a directional coupler
+  const Ls = 0.55, Lc = 0.75, La = 1.7;  // S-bend, coupling section, arm lengths
+  const U = 4*Ls + 2*Lc + La;            // unit length
+  const PITCH = U + 0.7;                 // column pitch
+  const D = (SPACING - GAP) / 2;         // how far each guide bends toward its partner
+  const cols = [];
+  for (let x0 = -LEN + 2.5; x0 + U < LEN - 1.5; x0 += PITCH) cols.push(x0);
+  const c2start = 3*Ls + Lc + La;        // where the second coupling section begins (within a unit)
+
+  function partner(row, j){
+    if ((row + j) % 2 === 0 && row < ROWS - 1) return row + 1;
+    if ((row - 1 + j) % 2 === 0 && row > 0) return row - 1;
+    return -1;
+  }
+  const baseY = r => (r - (ROWS - 1) / 2) * SPACING;
+  const sb = t => 0.5 * (1 - Math.cos(Math.PI * t));           // raised-cosine S-bend
+  const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+  function bend(u){ // 0..1 displacement profile of a coupler pair centred on u
+    if (u < 0) return 0;
+    if (u < Ls) return sb(u/Ls);
+    if (u < Ls+Lc) return 1;
+    if (u < 2*Ls+Lc) return 1 - sb((u-Ls-Lc)/Ls);
+    return 0;
+  }
+  function disp(u){ return D * (bend(u) + bend(u - (2*Ls + Lc + La))); }
+  function unitAt(x){
+    for (let j = 0; j < cols.length; j++){
+      const u = x - cols[j];
+      if (u >= 0 && u <= U) return {j, u};
+    }
+    return null;
+  }
+  function yOf(row, x){
+    const un = unitAt(x);
+    if (!un) return baseY(row);
+    const p = partner(row, un.j);
+    if (p < 0) return baseY(row);
+    return baseY(row) + Math.sign(p - row) * disp(un.u);
+  }
+
+  const group = new THREE.Group();
+  scene.add(group);
+
+  // Waveguides as flat ribbons (real waveguides are ~0.5 µm wide strips, not lines)
+  const RW = 0.05;
+  const wgMat = new THREE.ShaderMaterial({
+    transparent:true, depthWrite:false, side:THREE.DoubleSide,
+    uniforms:{uColor:{value:new THREE.Color(0x5b6b80)}, uLen:{value:LEN}},
+    vertexShader:`
+      uniform float uLen; varying float vA;
+      void main(){
+        float ex = smoothstep(-uLen, -uLen+8.0, position.x) * (1.0 - smoothstep(uLen-8.0, uLen, position.x));
+        vec4 mv = modelViewMatrix * vec4(position,1.0);
+        float dz = clamp((26.0 + mv.z) / 12.0, 0.0, 1.0);   // mv.z is negative in front of the camera
+        vA = 0.7 * ex * dz;
+        gl_Position = projectionMatrix * mv;
+      }`,
+    fragmentShader:`uniform vec3 uColor; varying float vA; void main(){ gl_FragColor = vec4(uColor, vA); }`
+  });
+  for (let r = 0; r < ROWS; r++){
+    const verts = [], idx = [];
+    let k = 0;
+    for (let x = -LEN; x <= LEN + 1e-6; x += 0.06){
+      const y = yOf(r, x);
+      verts.push(x, y - RW/2, 0, x, y + RW/2, 0);
+      if (k > 0) idx.push(2*k-2, 2*k-1, 2*k, 2*k-1, 2*k+1, 2*k);
+      k++;
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+    geo.setIndex(idx);
+    group.add(new THREE.Mesh(geo, wgMat));
+  }
+
+  // Phase shifters: heater strip over the upper arm plus two metal contact pads
+  const heaters = [];            // {mesh, j, row}
+  const padMat = new THREE.MeshBasicMaterial({color:0x5f6b7c, transparent:true, opacity:0.55});
+  const heaterGeo = new THREE.PlaneGeometry(La*0.62, 0.2);
+  const padGeo = new THREE.PlaneGeometry(0.22, 0.22);
+  for (let j = 0; j < cols.length; j++) for (let r = 0; r < ROWS - 1; r++){
+    if (partner(r, j) !== r + 1) continue;
+    const xc = cols[j] + 2*Ls + Lc + La/2, yc = baseY(r+1);
+    const m = new THREE.Mesh(heaterGeo, new THREE.MeshBasicMaterial({color:0xb8843a, transparent:true, opacity:0.2}));
+    m.position.set(xc, yc, 0.01); group.add(m);
+    for (const s of [-1, 1]){
+      const pad = new THREE.Mesh(padGeo, padMat);
+      pad.position.set(xc + s*(La*0.31 + 0.14), yc + 0.22, 0.01); group.add(pad);
+    }
+    heaters.push({mesh:m, j, row:r});
+  }
+  const heaterPhase = {}; // key j:row -> {seed, rate}
+  heaters.forEach(h => heaterPhase[h.j+':'+h.row] = {seed:Math.random()*6.28, rate:0.08 + Math.random()*0.12});
+  function phi(j, lowerRow, t){
+    const h = heaterPhase[j+':'+lowerRow]; if (!h) return 0;
+    return Math.PI * 0.5 * (1 + Math.sin(t*h.rate + h.seed));   // sweeps 0..pi
+  }
+
+  // Photon sprite
+  const cv = document.createElement('canvas'); cv.width = cv.height = 64;
+  const g = cv.getContext('2d');
+  const grad = g.createRadialGradient(32,32,0,32,32,32);
+  grad.addColorStop(0,'rgba(255,240,200,1)');
+  grad.addColorStop(0.25,'rgba(240,180,74,0.9)');
+  grad.addColorStop(1,'rgba(240,180,74,0)');
+  g.fillStyle = grad; g.fillRect(0,0,64,64);
+  const tex = new THREE.CanvasTexture(cv);
+
+  const N = 90;
+  const pos = new Float32Array(2*N*3), col = new Float32Array(2*N*3);
+  const photons = [];
+  for (let i = 0; i < N; i++){
+    photons.push({row:Math.floor(Math.random()*ROWS), x:-LEN + Math.random()*2*LEN, v:2.6 + Math.random()*1.4, unit:-1, entry:0, other:0});
+  }
+  const pgeo = new THREE.BufferGeometry();
+  pgeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  pgeo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  const pmat = new THREE.PointsMaterial({size:0.4, map:tex, vertexColors:true, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending});
+  group.add(new THREE.Points(pgeo, pmat));
+  const AMB = new THREE.Color(0xf0b44a);
+
+  group.rotation.set(-0.95, 0.15, 0.28);
+  group.position.set(0.5, -1.2, 0);
+
+  let mx = 0, my = 0;
+  addEventListener('pointermove', e => { mx = (e.clientX/innerWidth - 0.5); my = (e.clientY/innerHeight - 0.5); }, {passive:true});
+  addEventListener('resize', () => {
+    camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
+  });
+
+  let running = !reduced, last = performance.now(), t = 0;
+  const btn = document.getElementById('toggle');
+  function setRunning(on){
+    running = on;
+    btn.textContent = on ? 'Pause simulation' : 'Resume simulation';
+    btn.setAttribute('aria-pressed', String(!on));
+    if (on){ last = performance.now(); requestAnimationFrame(frame); }
+  }
+  btn.addEventListener('click', () => setRunning(!running));
+
+  const smooth = (a,b,x) => { const t = clamp((x-a)/(b-a),0,1); return t*t*(3-2*t); };
+  function setPoint(i, x, y, p){
+    const s = Math.sqrt(Math.max(p, 0)) * smooth(-LEN, -LEN+8, x) * (1 - smooth(LEN-8, LEN, x));
+    pos[i*3] = x; pos[i*3+1] = y; pos[i*3+2] = 0.03;
+    col[i*3] = AMB.r*s; col[i*3+1] = AMB.g*s; col[i*3+2] = AMB.b*s;
+  }
+
+  function step(dt){
+    for (let i = 0; i < N; i++){
+      const p = photons[i];
+      p.x += p.v * dt;
+      if (p.x > LEN){ p.x = -LEN; p.row = Math.floor(Math.random()*ROWS); p.unit = -1; }
+      const un = unitAt(p.x);
+      if (p.unit < 0 && un){
+        const q = partner(p.row, un.j);
+        if (q >= 0){ p.unit = un.j; p.entry = p.row; p.other = q; }
+      }
+      if (p.unit >= 0 && (!un || un.j !== p.unit)){
+        // left the unit: output coupler "measures" which port the photon exits
+        const lower = Math.min(p.entry, p.other);
+        const ph = phi(p.unit, lower, t);
+        p.row = Math.random() < Math.sin(ph/2)**2 ? p.entry : p.other;  // bar prob = sin^2(phi/2)
+        p.unit = -1;
+      }
+      if (p.unit >= 0){
+        const u = un.u, lower = Math.min(p.entry, p.other);
+        let pe;
+        if (u < c2start){ const s1 = clamp((u - Ls)/Lc, 0, 1); pe = Math.cos(Math.PI*s1/4)**2; }
+        else { const s2 = clamp((u - c2start)/Lc, 0, 1); pe = 0.5*(1 - Math.sin(Math.PI*s2/2)*Math.cos(phi(p.unit, lower, t))); }
+        setPoint(2*i,   p.x, yOf(p.entry, p.x), pe);
+        setPoint(2*i+1, p.x, yOf(p.other, p.x), 1 - pe);
+      } else {
+        setPoint(2*i, p.x, yOf(p.row, p.x), 1);
+        setPoint(2*i+1, p.x, yOf(p.row, p.x), 0);
+      }
+    }
+    pgeo.attributes.position.needsUpdate = true;
+    pgeo.attributes.color.needsUpdate = true;
+    for (const h of heaters){
+      const ph = phi(h.j, h.row, t);
+      h.mesh.material.opacity = 0.08 + 0.32 * 0.5*(1 - Math.cos(ph));   // warmer glow = more phase
+    }
+  }
+  function frame(now){
+    if (!running) return;
+    const dt = Math.min((now - last)/1000, 0.05); last = now; t += dt;
+    step(dt);
+    group.rotation.z = 0.28 + mx * 0.06 + Math.sin(t*0.12)*0.02;
+    group.rotation.x = -0.95 + my * 0.06;
+    group.position.x = 0.5 + Math.sin(t*0.07)*0.4;
+    renderer.render(scene, camera);
+    requestAnimationFrame(frame);
+  }
+  step(0); renderer.render(scene, camera);
+  if (running) requestAnimationFrame(frame); else setRunning(false);
+})();
+</script>
 </body>
+</html>
